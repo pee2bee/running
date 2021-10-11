@@ -7,21 +7,16 @@
     <link rel="stylesheet" href="{{mix('css/app.css')}}">
   </head>
   <body>
+    {{-- 引入头部导航栏 --}}
+    @include('layouts._header')
 
-
-    {{-- navbar 导航栏 --}}
-    <nav class="navbar navbar-expend-lg navbar-dark bg-dark">
-      <div class="container">
-        <a class="navbar-brand" href="/">running App</a>
-        <u1 class="navbar-nav justify-content-end">
-          <li class="nav-item"><a class="nav-link" href="/help">帮助</a></li>
-          <il class="nav-item"><a class="nav-link" href="#">登录</a></il>
-        </u1>
-      </div>
-    </nav>
 
     <div class="container">
-      @yield('content')
+      {{-- 引入底部 --}}
+      <div class="offset-md-1 col-md-10">
+        @yield('content')
+        @include('layouts._footer')
+      </div>
     </div>
   </body>
 </html>
