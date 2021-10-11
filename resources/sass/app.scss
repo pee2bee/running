@@ -1,0 +1,19 @@
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+//font 字体；weight 重量，加重; font-weight 字体粗细; normal 正常的;
+body {
+  font-size:14px;
+  font-weight:normal;
+}
+
+
+//navbar 导航栏; expend 增大，扩展; margin 外边距，页面空白; bottom 底部;
+nav.navbar.navbar-expand-lg {
+  margin-bottom:20px;
+}
+
+
+
+
+
