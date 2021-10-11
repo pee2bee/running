@@ -22,3 +22,5 @@ Route::get('/about','StaticPagesController@about')->name('about');//关于页路
 // PATCH 常用于数据更新
 // DELETE 常用于数据删除
 
+Route::get('signup','UsersController@create')->name('signup');//signup 注册，签约;创建注册路由，转由用户控制器的create方法处理
+
