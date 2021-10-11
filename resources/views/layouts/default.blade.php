@@ -4,9 +4,11 @@
   <head>
     <title>@yield('title','running App') - Laravel 入门二刷</title>
     {{-- Laravel 在运行时，是以 public 文件夹为根目录的，因此我们可以使用下面这行代码来为 Laravel 引入样式： --}}
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="{{mix('css/app.css')}}">
   </head>
   <body>
+
+
     {{-- navbar 导航栏 --}}
     <nav class="navbar navbar-expend-lg navbar-dark bg-dark">
       <div class="container">
