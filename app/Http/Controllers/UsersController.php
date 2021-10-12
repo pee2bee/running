@@ -33,7 +33,12 @@ class UsersController extends Controller
         return view('users.show',compact('user'));
     }
 
- /*    用于处理表单数据提交后的 store 方法，用于处理用户创建的相关逻辑 */
+/*    用于处理表单数据提交后的 store 方法，用于处理用户创建的相关逻辑
+1.用户注册失败的处理逻辑。
+2.用户注册成功后的处理逻辑。(当用户注册完成，且表单信息验证通过后)
+    2.1将用户提交的信息存储到数据库，并重定向到其个人页面
+    2.2在网页顶部位置显示注册成功的提示信息
+ */
     public function store(Request $request)
     {
     /*
@@ -46,6 +51,7 @@ class UsersController extends Controller
     3.长度验证：min和max 来限制用所填写字段的最小长度和最大长度。
 
     4.格式验证：邮箱格式直接用'email'验证即可
+    5.(validate 验证)
     */
 
         $this->validate($request,[
@@ -53,7 +59,21 @@ class UsersController extends Controller
             'email'=>'required|email|unique:users|max:255',
             'password'=>'required|confirmed|min:6'
         ]);
-        return;
+
+
+        //用户模型 User::create() 创建成功后会返回一个用户对象，并包含新注册用户的所有信息,将新注册用户的所有信息赋值给变量 $user
+        $user = User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>bcrypt($request->password),
+        ]);
+
+        session()->flash('success','欢迎，你将在这里重温伟大旅程！');//由于 HTTP 协议是无状态的，所以 Laravel 提供了一种用于临时保存用户数据的方法 - 会话（Session），并附带支持多种会话后端驱动，可通过统一的 API 进行使用。
+        //我们可以使用 session() 方法来访问会话实例。而当我们想存入一条缓存的数据，让它只在下一次的请求内有效时，则可以使用 flash 方法。flash 方法接收两个参数，第一个为会话的键，第二个为会话的值，我们可以通过上面的一行代码为会话赋值。
+        //之后我们可以使用 session()->get('success') 通过键名来取出对应会话中的数据，取出的结果为 欢迎，你将在这里重温伟大旅程！
+
+        //这里是一个『约定优于配置』的体现，此时 $user 是 User 模型对象的实例。route() 方法会自动获取 Model 的主键，也就是数据表 users 的主键,下面代码等同于：redirect()->route('users.show', [$user->id]);(redirect 重定向;)
+        return redirect()->route('users.show',[$user]);
     }
 
 
