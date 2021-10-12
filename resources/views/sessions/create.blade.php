@@ -1,5 +1,6 @@
 {{-- 登录视图 --}}
 
+{{-- (iterate 反复说，迭代，重复; offset 偏移，抵消，补偿; example 例子，举例; ) --}}
 {{-- 引入通用视图 --}}
 @extends('layouts.default')
 
@@ -42,6 +43,14 @@
           <div class="form-group">
             <label for="password">密码：</label>
             <input type="password" name="password" class="form-control" value="{{ old('password') }}">
+          </div>
+
+          {{-- 加一个板块，实现长时间登录的记住我的功能 --}}
+          <div class="form-group">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" name="remember" id="exampleCheck1">
+              <label class="form-check-label" for="exampleCheck1">点一下，记你五年！</label>
+            </div>
           </div>
 
           {{-- 第四层 登录按钮 --}}
