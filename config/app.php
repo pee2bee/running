@@ -80,7 +80,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale'=>'zh_CN',//'locale' => 'en',将项目语言设置为中文 (locale 地点，现场；区域设置)
 
     /*
     |--------------------------------------------------------------------------
@@ -158,7 +158,19 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
+
+
+
+        // Illuminate\Translation\TranslationServiceProvider::class,
+        // Laravel 为消息验证的多语言提供了一种非常简便的方法进行支持。我们可以通过添加一个如 resources/lang/xx/validation.php 语言包，并在语言包的 custom 数组中对翻译语言进行设定。这是非常通用的功能，所以在 GitHub 上有人专门为此写了一个扩展包 - overtrue/laravel-lang 来对 Laravel 提供默认提示信息添加多语言版本翻译。
+        // 1.先用 Composer 来安装 laravel-lang：composer require "overtrue/laravel-lang:~4.0"。
+        // 2.替换这一行。
+        // 3.将项目语言设置为中文。
+        Overtrue\LaravelLang\TranslationServiceProvider::class,
+
+
+
+
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
