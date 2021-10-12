@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
+/* (store 商店;) */
 class UsersController extends Controller
 {
     //定义create方法
@@ -68,7 +70,10 @@ class UsersController extends Controller
             'password'=>bcrypt($request->password),
         ]);
 
-        session()->flash('success','欢迎，你将在这里重温伟大旅程！');//由于 HTTP 协议是无状态的，所以 Laravel 提供了一种用于临时保存用户数据的方法 - 会话（Session），并附带支持多种会话后端驱动，可通过统一的 API 进行使用。
+        // 让一个已认证通过的用户实例进行登录
+        Auth::login($user);
+
+        session()->flash('success','再次欢迎，你将在这里重温伟大旅程！');//由于 HTTP 协议是无状态的，所以 Laravel 提供了一种用于临时保存用户数据的方法 - 会话（Session），并附带支持多种会话后端驱动，可通过统一的 API 进行使用。
         //我们可以使用 session() 方法来访问会话实例。而当我们想存入一条缓存的数据，让它只在下一次的请求内有效时，则可以使用 flash 方法。flash 方法接收两个参数，第一个为会话的键，第二个为会话的值，我们可以通过上面的一行代码为会话赋值。
         //之后我们可以使用 session()->get('success') 通过键名来取出对应会话中的数据，取出的结果为 欢迎，你将在这里重温伟大旅程！
 

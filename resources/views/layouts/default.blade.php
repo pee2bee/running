@@ -28,6 +28,9 @@
 
       </div>
     </div>
+
+    {{-- 引用编译后的 app.js 文件,使下拉式菜单能被打开 --}}
+    <script src="{{ mix('js/app.js') }}"></script>
   </body>
 </html>
 
