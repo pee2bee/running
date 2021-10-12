@@ -32,4 +32,37 @@ class UsersController extends Controller
         //将用户对象 $user 通过 compact 方法转化为一个关联数组，并作为第二个参数传递给 view 方法，将数据与视图进行绑定。
         return view('users.show',compact('user'));
     }
+
+ /*    用于处理表单数据提交后的 store 方法，用于处理用户创建的相关逻辑 */
+    public function store(Request $request)
+    {
+    /*
+    1.存在性验证:在用户填写表单的时候，我们会要求用户必须填写上自己的用户名，当用户名为空时将注册失败。
+    这时我们可以使用 required 来验证用户名是否为空(required 必需的)
+
+    2.唯一性验证：验证新用户的用户名或邮箱是否已被使用，用unique验证，针对user表(unique 独一无二的)
+        使用形式：'要验证的字段'=>'unique:数据表'
+        *邮箱验证需要更谨慎：一开始创建 用户数据表 时就要设置邮箱字段的唯一属性。这个 Laravel 在默认给我们生成的用户表迁移文件中便已经默认设定好了。
+    3.长度验证：min和max 来限制用所填写字段的最小长度和最大长度。
+
+    4.格式验证：邮箱格式直接用'email'验证即可
+    */
+
+        $this->validate($request,[
+            'name'=>'required|unique:users|max:50',
+            'email'=>'required|email|unique:users|max:255',
+            'password'=>'required|confirmed|min:6'
+        ]);
+        return;
+    }
+
+
+
+
+
+
+
+
+
+
 }
