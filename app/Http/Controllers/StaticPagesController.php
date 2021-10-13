@@ -14,17 +14,19 @@ class StaticPagesController extends Controller
     {
         return view('static_pages/home');
     }
-    
-    //设置home方法来处理route发来的访问帮助页请求
+
+    //设置help方法来处理route发来的访问帮助页请求
     public function help()
     {
         return view('static_pages/help');
     }
 
-    //设置home方法来处理route发来的访问关于页请求
+    //设置about方法来处理route发来的访问关于页请求
     public function about()
     {
         return view('static_pages/about');
     }
+
+    //
 
 }

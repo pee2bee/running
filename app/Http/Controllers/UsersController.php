@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/* (store 商店;) */
+/* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; ) */
 class UsersController extends Controller
 {
     //定义create方法
@@ -82,10 +82,36 @@ class UsersController extends Controller
     }
 
 
+    //为用户更新资料，添加 edit() 编辑动作
+    public function edit(User $user)
+    {
+    //1.利用了 Laravel 的『隐性路由模型绑定』功能，直接读取对应 ID 的用户实例 $user，未找到则报错；
+    //2.将查找到的用户实例 $user 与编辑视图进行绑定；
+        return view("users.edit",compact('user'));
+    }
 
+    /* 建立 update 动作，处理用户更新资料的行为 */
+    public function update(User $user,Request $request)
+    {
+        //验证用户输入的名字、密码的格式，并设置密码可空
+        $this->validate($request,[
+            'name'=>'required|max:50',
+            'password'=>'nullable|confirmed|min:6'
+        ]);
 
+        //用数组 $data 存储发来的 $request 请求中的name、password 字段，其中如果password字段为空，则不进行加密传输
+        $data = [];
+        $data['name'] = $request -> name;
+        if($request -> password){
+            $data['password'] = bcrypt($request -> password);
+        }
+        $user->update($data);
 
+        session()->flash('success','个人资料更新成功！');
 
+        return redirect()->route('users.show',$user);
+
+    }
 
 
 
