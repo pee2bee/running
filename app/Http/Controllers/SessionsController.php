@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Auth;
 /* 会话控制器 */
 class SessionsController extends Controller
 {
+    //构建器——限定权限
+    public function __construct()
+    {
+        //白名单only，只让游客使用create动作访问登录页面
+        $this->middleware('guest',[
+            'only'=>['create']
+        ]);
+    }
+
+
+
+
     //用 create 动作显示登录页面
     public function create()
     {
@@ -20,6 +32,7 @@ class SessionsController extends Controller
     //创建 store 动作来对用户提交的数据进行验证
     public function store(Request $request)
     {
+
         //验证用户提交的信息格式是否正确
         $credentials = $this -> validate($request, [
             'email'=> 'required|email|max:255',
@@ -39,9 +52,17 @@ class SessionsController extends Controller
         */
         //Auth::attempt() 方法可接收两个参数，第一个参数为需要进行用户身份认证的数组，第二个参数为是否为用户开启『记住我』功能的布尔值
         if (Auth::attempt($credentials,$request->has('remember'))) {
-            //登录成功后的相关操作
+            /* 登录成功后的相关操作 */
+
+            //1.存入成功后的消息提醒
             session()->flash('success', '来了，老弟！');
-            return redirect()->route('users.show', [Auth::user()]);
+            /*          //2.重定向至个人中心（用户页面）
+                        return redirect()->route('users.show', [Auth::user()]);
+            */
+            //2.重定向至用户上次访问的页面
+            $fallback = route('users.show',Auth::user());
+            return redirect()->intended($fallback);
+
         } else {
             //登录失败后的相关操作
             session()->flash('danger', '休想骗我，你的邮箱和密码不对');

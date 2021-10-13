@@ -6,9 +6,48 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; ) */
+/* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; construct 构建，建筑; except 除了; ) */
 class UsersController extends Controller
 {
+
+
+
+
+
+
+
+
+
+
+
+
+    /* 构建中间件来过滤用户行为,即定义权限，谁能干啥，不能干啥 */
+    public function __construct()
+    //__construct 是 PHP 的构造器方法，当一个类对象被创建之前该方法将会被调用
+    {
+        //调用了 middleware 方法，该方法接收两个参数，第一个为中间件的名称，第二个为要进行过滤的动作。我们通过 except 方法来设定 指定动作 不使用 Auth 中间件进行过滤，意为 —— 除了此处指定的动作以外，所有其他动作都必须登录用户才能访问，类似于黑名单的过滤机制
+        $this->middleware('auth',[
+            'except'=>['show','create','store']
+        ]);//Laravel 提供的 Auth 中间件在过滤指定动作时，如该用户未通过身份验证（未登录用户），默认将会被重定向到 /login 登录页面
+
+    //白名单only，只让游客使用create动作访问登录页面
+    $this->middleware('guest',[
+        'only'=>['create']
+        ]);
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     //定义create方法
     public function create()
     {
@@ -16,21 +55,28 @@ class UsersController extends Controller
         return view('users.create');
     }
 
-//定义用户个人页面展示方法show()
-/*     Laravel 会自动解析定义在控制器方法（变量名匹配路由片段）中的 Eloquent 模型类型声明。在上面代码中，由于 show() 方法传参时声明了类型 —— Eloquent 模型 User，对应的变量名 $user 会匹配路由片段中的 {user}，这样，Laravel 会自动注入与请求 URI 中传入的 ID 对应的用户模型实例。 */
-/* 此功能称为 『隐性路由模型绑定』，是『约定优于配置』设计范式的体现，同时满足以下两种情况，此功能即会自动启用：
 
-    1.路由声明时必须使用 Eloquent 模型的单数小写格式来作为路由片段参数，User 对应 {user}：
-    Route::get('/users/{user}', 'UsersController@show')->name('users.show');
-    2.控制器方法传参中必须包含对应的 Eloquent 模型类型声明，并且是有序的：
-    public function show(User $user)
-{
-    return view('users.show', compact('user'));
-}
-当请求 running.test/users/1 并且满足以上两个条件时，Laravel 将会自动查找 ID 为 1 的用户并赋值到变量 $user 中，如果数据库中找不到对应的模型实例，会自动生成 HTTP 404 响应。
-*/
+
+
+
+
+    //定义用户个人页面展示方法show()
+    /*     Laravel 会自动解析定义在控制器方法（变量名匹配路由片段）中的 Eloquent 模型类型声明。在上面代码中，由于 show() 方法传参时声明了类型 —— Eloquent 模型 User，对应的变量名 $user 会匹配路由片段中的 {user}，这样，Laravel 会自动注入与请求 URI 中传入的 ID 对应的用户模型实例。 */
+    /* 此功能称为 『隐性路由模型绑定』，是『约定优于配置』设计范式的体现，同时满足以下两种情况，此功能即会自动启用：
+        1.路由声明时必须使用 Eloquent 模型的单数小写格式来作为路由片段参数，User 对应 {user}：
+        Route::get('/users/{user}', 'UsersController@show')->name('users.show');
+        2.控制器方法传参中必须包含对应的 Eloquent 模型类型声明，并且是有序的：
+        public function show(User $user)
+    {
+        return view('users.show', compact('user'));
+    }
+    当请求 running.test/users/1 并且满足以上两个条件时，Laravel 将会自动查找 ID 为 1 的用户并赋值到变量 $user 中，如果数据库中找不到对应的模型实例，会自动生成 HTTP 404 响应。
+    */
     public function show(User $user)
     {
+        //为登录用户不能访问用户个人页面
+        $this->authorize('update', $user);
+
         //将用户对象 $user 通过 compact 方法转化为一个关联数组，并作为第二个参数传递给 view 方法，将数据与视图进行绑定。
         return view('users.show',compact('user'));
     }
@@ -82,17 +128,55 @@ class UsersController extends Controller
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //为用户更新资料，添加 edit() 编辑动作
     public function edit(User $user)
     {
+
+        //增加用户更新时的权限验证
+        $this->authorize('update',$user);
+
     //1.利用了 Laravel 的『隐性路由模型绑定』功能，直接读取对应 ID 的用户实例 $user，未找到则报错；
     //2.将查找到的用户实例 $user 与编辑视图进行绑定；
         return view("users.edit",compact('user'));
     }
 
+
+
+
+
+
+
+
+
+
+
     /* 建立 update 动作，处理用户更新资料的行为 */
     public function update(User $user,Request $request)
     {
+
+        //检验当前用户是否是要访问的账号用户
+        $this->authorize('update',$user);
+
         //验证用户输入的名字、密码的格式，并设置密码可空
         $this->validate($request,[
             'name'=>'required|max:50',
