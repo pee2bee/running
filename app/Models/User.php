@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -34,6 +35,20 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($user){
+            $user -> activation_token = Str::random(10);
+        });
+    }
+
+
+
+
+
     /**
      * The attributes that should be cast.
      *
@@ -54,4 +69,5 @@ class User extends Authenticatable
 
         return "http://www.gravatar.com/avatar/$hash?s=$size";//6.将转码后的邮箱与链接、尺寸拼接成完整的 URL 并返回；
     }
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 /* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; construct 构建，建筑; except 除了; index 索引;  ) */
 class UsersController extends Controller
@@ -18,7 +19,7 @@ class UsersController extends Controller
     {
         //调用了 middleware 方法，该方法接收两个参数，第一个为中间件的名称，第二个为要进行过滤的动作。我们通过 except 方法来设定 指定动作 不使用 Auth 中间件进行过滤，意为 —— 除了此处指定的动作以外，所有其他动作都必须登录用户才能访问，类似于黑名单的过滤机制
         $this->middleware('auth',[
-            'except'=>['show','create','store','index']
+            'except'=>['show','create','store','index','confirmEmail']
         ]);//Laravel 提供的 Auth 中间件在过滤指定动作时，如该用户未通过身份验证（未登录用户），默认将会被重定向到 /login 登录页面
 
     //白名单only，只让游客使用create动作访问登录页面
@@ -91,6 +92,16 @@ class UsersController extends Controller
         return view('users.show',compact('user'));
     }
 
+
+
+
+
+
+
+
+
+
+
 /*    用于处理表单数据提交后的 store 方法，用于处理用户创建的相关逻辑
 1.用户注册失败的处理逻辑。
 2.用户注册成功后的处理逻辑。(当用户注册完成，且表单信息验证通过后)
@@ -109,15 +120,12 @@ class UsersController extends Controller
     3.长度验证：min和max 来限制用所填写字段的最小长度和最大长度。
 
     4.格式验证：邮箱格式直接用'email'验证即可
-    5.(validate 验证)
     */
-
         $this->validate($request,[
             'name'=>'required|unique:users|max:50',
             'email'=>'required|email|unique:users|max:255',
             'password'=>'required|confirmed|min:6'
         ]);
-
 
         //用户模型 User::create() 创建成功后会返回一个用户对象，并包含新注册用户的所有信息,将新注册用户的所有信息赋值给变量 $user
         $user = User::create([
@@ -126,15 +134,14 @@ class UsersController extends Controller
             'password'=>bcrypt($request->password),
         ]);
 
-        // 让一个已认证通过的用户实例进行登录
-        Auth::login($user);
+        // 发送验证邮件
+        $this -> sendEmailConfirmationTo($user);
 
-        session()->flash('success','再次欢迎，你将在这里重温伟大旅程！');//由于 HTTP 协议是无状态的，所以 Laravel 提供了一种用于临时保存用户数据的方法 - 会话（Session），并附带支持多种会话后端驱动，可通过统一的 API 进行使用。
+        session()->flash('success','验证邮件已发送到你的注册邮箱上，请注意查收。');//由于 HTTP 协议是无状态的，所以 Laravel 提供了一种用于临时保存用户数据的方法 - 会话（Session），并附带支持多种会话后端驱动，可通过统一的 API 进行使用。
         //我们可以使用 session() 方法来访问会话实例。而当我们想存入一条缓存的数据，让它只在下一次的请求内有效时，则可以使用 flash 方法。flash 方法接收两个参数，第一个为会话的键，第二个为会话的值，我们可以通过上面的一行代码为会话赋值。
-        //之后我们可以使用 session()->get('success') 通过键名来取出对应会话中的数据，取出的结果为 欢迎，你将在这里重温伟大旅程！
+        //之后我们可以使用 session()->get('success') 通过键名来取出对应会话中的数据
 
-        //这里是一个『约定优于配置』的体现，此时 $user 是 User 模型对象的实例。route() 方法会自动获取 Model 的主键，也就是数据表 users 的主键,下面代码等同于：redirect()->route('users.show', [$user->id]);(redirect 重定向;)
-        return redirect()->route('users.show',[$user]);
+        return redirect('/');
     }
 
 
@@ -219,15 +226,37 @@ class UsersController extends Controller
         return back();
     }
 
+    /* 定义一个 sendEmailConfirmationTo 方法，该方法将用于发送邮件给指定用户。在用户注册成功之后调用该方法来发送激活邮件 */
+    protected function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $from = '1234@qq.com';
+        $name = '张三';
+        $to = $user->email;
+        $subject = "感谢注册 running 应用！请确认你的邮箱。";
+
+        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
+            $message->from($from, $name)->to($to)->subject($subject);//( subject 主题; )
+        });
+    }
 
 
 
 
+    /* 成用户的激活操作 */
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token', $token)->firstOrFail();
 
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
 
-
-
-
+        Auth::login($user);
+        session()->flash('success', '恭喜你，激活成功！');
+        return redirect()->route('users.show', [$user]);
+    }
 
 
 
