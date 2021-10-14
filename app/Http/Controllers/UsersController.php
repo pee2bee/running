@@ -27,6 +27,11 @@ class UsersController extends Controller
         'only'=>['create']
         ]);
 
+    //注册限流一分钟不超过3次
+    $this -> middleware('throttle:3,1',[
+        'only'=>['store']
+    ]);
+
     }
 
 

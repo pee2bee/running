@@ -12,6 +12,13 @@ use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
+    public function __construct()
+    {
+        $this -> middleware('throttle:5,1',[
+            'only' => ['showLinkRequestForm']
+        ]);
+    }
+
     //显示发送密码重置邮件的页面
     public function showLinkRequestForm()
     {
