@@ -40,3 +40,9 @@ Route::delete('logout','SessionsController@destroy')->name('logout');//销毁会
 
 Route::get('signup/confirm/{token}','UsersController@confirmEmail')->name('confirm_email');//为用户的激活功能设定好路由，该路由将附带用户生成的激活令牌，在用户点击链接进行激活之后，将激活令牌通过路由参数传给控制器的指定动作
 
+
+
+Route::get('password/reset',  'PasswordController@showLinkRequestForm')->name('password.request');//填写 Email 的表单
+Route::post('password/email',  'PasswordController@sendResetLinkEmail')->name('password.email');//处理表单提交，成功的话就发送邮件，附带 Token 的链接
+Route::get('password/reset/{token}',  'PasswordController@showResetForm')->name('password.reset');//显示更新密码的表单，包含 token
+Route::post('password/reset','PasswordController@reset')->name('password.update');//对提交过来的 token 和 email 数据进行配对，正确的话更新密码
