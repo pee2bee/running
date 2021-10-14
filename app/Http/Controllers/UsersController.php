@@ -85,8 +85,7 @@ class UsersController extends Controller
     */
     public function show(User $user)
     {
-        //为登录用户不能访问用户个人页面
-        $this->authorize('update', $user);
+        //未登录用户不能访问用户个人页面
 
         //将用户对象 $user 通过 compact 方法转化为一个关联数组，并作为第二个参数传递给 view 方法，将数据与视图进行绑定。
         return view('users.show',compact('user'));
@@ -207,6 +206,27 @@ class UsersController extends Controller
         return redirect()->route('users.show',$user);
 
     }
+
+
+
+
+
+    public function destroy(User $user)
+    {
+        $this -> authorize('destroy',$user);
+        $user -> delete();
+        session() -> flash('success','成功删除用户！');
+        return back();
+    }
+
+
+
+
+
+
+
+
+
 
 
 
