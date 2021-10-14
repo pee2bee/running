@@ -6,18 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; construct 构建，建筑; except 除了; ) */
+/* ( store 商店; edit 编辑; compact 压缩; nullable 可空类型; date 日期，约会; data 数据; update 更新，升级; construct 构建，建筑; except 除了; index 索引;  ) */
 class UsersController extends Controller
 {
-
-
-
-
-
-
-
-
-
 
 
 
@@ -27,14 +18,34 @@ class UsersController extends Controller
     {
         //调用了 middleware 方法，该方法接收两个参数，第一个为中间件的名称，第二个为要进行过滤的动作。我们通过 except 方法来设定 指定动作 不使用 Auth 中间件进行过滤，意为 —— 除了此处指定的动作以外，所有其他动作都必须登录用户才能访问，类似于黑名单的过滤机制
         $this->middleware('auth',[
-            'except'=>['show','create','store']
+            'except'=>['show','create','store','index']
         ]);//Laravel 提供的 Auth 中间件在过滤指定动作时，如该用户未通过身份验证（未登录用户），默认将会被重定向到 /login 登录页面
 
     //白名单only，只让游客使用create动作访问登录页面
     $this->middleware('guest',[
         'only'=>['create']
         ]);
-        
+
+    }
+
+
+
+
+
+
+
+
+
+    /* 访问所有用户的用户列表 */
+    public function index()
+    {
+        //1.2默认状况下，页面的当前页数由 HTTP 请求所带的 page 参数决定，当你访问 running.test/users?page=2 链接时，获取的是第二页的用户列表信息，Laravel 会自动检测到 page 的值并插入由分页器生成的链接中。在下面代码我们使用 paginate 方法来指定每页生成的数据数量为 6 条，即当有 50 个用户时，用户列表将被分为 9 页进行展示。
+        //在调用 paginate 方法获取用户列表之后，便可以通过{!! $users->render() !!}代码在用户列表页上渲染分页链接。
+        $users = User::paginate(6);
+        /* 1.1从数据库取出所有用户数据————————$users = User::all(); */
+
+        //2.在用户列表页面将所有用户进行展示
+        return view('users.index',compact('users'));
     }
 
 
