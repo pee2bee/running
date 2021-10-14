@@ -236,20 +236,18 @@ class UsersController extends Controller
     {
         $view = 'emails.confirm';
         $data = compact('user');
-        $from = '1234@qq.com';
-        $name = '张三';
         $to = $user->email;
         $subject = "感谢注册 running 应用！请确认你的邮箱。";
 
-        Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
-            $message->from($from, $name)->to($to)->subject($subject);//( subject 主题; )
+        Mail::send($view, $data, function ($message) use ($to, $subject) {
+            $message->to($to)->subject($subject);//( subject 主题; )
         });
     }
 
 
 
 
-    /* 成用户的激活操作 */
+    /* 完成用户的激活操作 */
     public function confirmEmail($token)
     {
         $user = User::where('activation_token', $token)->firstOrFail();
